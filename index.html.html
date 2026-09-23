@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Tracking Portal Qatar Region</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS for processing Excel and ODS files -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for Pie Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            navy: '#0D1B40',
+                            navyLight: '#162a5c',
+                            lime: '#9AC311',
+                            limeHover: '#87ae0a'
+                        }
+                    },
+                    keyframes: {
+                        fadeInScale: {
+                            '0%': { opacity: '0', transform: 'scale(0.96) translateY(12px)' },
+                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+                        },
+                        slideDown: {
+                            '0%': { opacity: '0', transform: 'translateY(-12px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    },
+                    animation: {
+                        fadeInScale: 'fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        slideDown: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="h-full antialiased flex flex-col justify-between selection:bg-brand-lime selection:text-brand-navy bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+
+    <!-- LOGIN VIEW -->
+    <div id="loginView" class="fixed inset-0 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-xl z-50 flex items-center justify-center p-6 transition-all duration-500">
+        <div class="absolute w-[500px] h-[500px] bg-brand-navy/10 dark:bg-brand-lime/10 rounded-full blur-[120px] pointer-events-none"></div>
+        
+        <div class="bg-white dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-fadeInScale relative">
+            <div class="px-8 pt-10 pb-8 text-center bg-gradient-to-b from-brand-navy/5 to-transparent dark:from-slate-900 dark:to-slate-900/50 relative overflow-hidden border-b border-slate-100 dark:border-slate-800">
+                <div class="absolute top-4 right-4 bg-brand-lime/20 text-brand-navy dark:text-brand-lime px-3 py-1 rounded-full text-[10px] font-extrabold tracking-widest uppercase">Qatar Operations</div>
+                
+                <div class="inline-flex items-center justify-center p-3.5 bg-brand-navy text-brand-lime rounded-2xl shadow-lg mb-3">
+                    <i class="fa-solid fa-gem text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-brand-navy dark:text-white">APPAREL GROUP</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-xs font-semibold mt-1">Recruitment Tracking Portal Qatar Region</p>
+            </div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Username</label>
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fa-solid fa-user text-xs"></i></span>
+                        <input type="text" id="loginUser" required class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-lime transition-all shadow-inner" placeholder="e.g. admin or am_mamun">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Password</label>
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></span>
+                        <input type="password" id="loginPass" required class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-lime transition-all shadow-inner" placeholder="••••••••">
+                    </div>
+                </div>
+                
+                <div id="loginError" class="hidden text-rose-500 text-xs font-medium bg-rose-500/10 border border-rose-500/20 p-3.5 rounded-2xl text-center animate-slideDown"></div>
+                
+                <button type="submit" class="w-full py-4 bg-brand-navy hover:bg-brand-navyLight active:scale-[0.98] text-white font-bold rounded-2xl shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 text-sm group">
+                    <span>Sign In Securely</span>
+                    <i class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1"></i>
+                </button>
+                
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 text-center space-y-1">
+                    <p><strong>Super Admin:</strong> admin / admin123</p>
+                    <p><strong>Area Manager:</strong> am_[name] / [name]123</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD VIEW -->
+    <div id="appView" class="hidden flex-col h-full animate-fadeInScale">
+        <!-- Top Header Navigation -->
+        <header class="bg-white/80 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-all">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-brand-navy text-brand-lime px-3.5 py-2.5 rounded-2xl shadow-md font-extrabold text-[11px] tracking-widest">
+                        APPAREL GROUP
+                    </div>
+                    <div class="border-l border-slate-200 dark:border-slate-800 pl-4">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-navy dark:text-brand-lime block">Qatar Operations</span>
+                        <span class="text-base font-bold text-slate-900 dark:text-slate-100">Recruitment Tracking Portal Qatar Region</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleDarkMode()" class="p-3 text-slate-600 dark:text-slate-300 hover:text-brand-navy dark:hover:text-brand-lime hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-800 shadow-sm" title="Toggle Theme">
+                        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                    </button>
+                    <div class="text-right hidden sm:block pl-2 border-l border-slate-200 dark:border-slate-800">
+                        <div id="userDisplayName" class="text-sm font-bold text-slate-900 dark:text-slate-100"></div>
+                        <div id="userDisplayRole" class="text-xs font-semibold text-slate-500 dark:text-slate-400"></div>
+                    </div>
+                    <button onclick="logout()" class="p-3 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 border border-slate-200 dark:border-slate-800 shadow-sm" title="Sign Out">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-6 lg:px-8 py-8 space-y-8 overflow-y-auto">
+            
+            <!-- ADMIN CONTROLS -->
+            <div id="adminPanel" class="hidden space-y-6 animate-slideDown">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="p-3 bg-brand-navy/10 text-brand-navy dark:text-brand-lime rounded-2xl border border-brand-navy/20 dark:border-brand-lime/20">
+                                    <i class="fa-solid fa-file-excel text-base"></i>
+                                </div>
+                                <h3 class="font-bold text-base text-slate-900 dark:text-slate-100">Database Sync</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">Upload your latest candidate spreadsheet (.xlsx or .ods) to update live records across all connected devices.</p>
+                        </div>
+                        <div>
+                            <label class="cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold px-4 py-3.5 rounded-2xl text-xs uppercase tracking-wider inline-flex items-center space-x-2 transition-all w-full justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <i class="fa-solid fa-cloud-arrow-up text-brand-navy dark:text-brand-lime text-sm"></i>
+                                <span>Upload Excel File</span>
+                                <input type="file" id="excelUpload" accept=".xlsx, .xls, .ods, .csv" class="hidden" onchange="handleExcelUpload(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-5">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                        <i class="fa-solid fa-user-shield text-base"></i>
+                                    </div>
+                                    <h3 class="font-bold text-base text-slate-900 dark:text-slate-100">Area Manager Management</h3>
+                                </div>
+                                <span class="text-xs font-bold px-3 py-1 bg-brand-navy/10 text-brand-navy dark:text-brand-lime border border-brand-navy/20 dark:border-brand-lime/20 rounded-full">Admin Portal</span>
+                            </div>
+                            <form onsubmit="createManager(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-4">
+                                <input type="text" id="newMgrName" placeholder="Manager Name" required class="px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-lime">
+                                <input type="text" id="newMgrUser" placeholder="Username" required class="px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-lime">
+                                <input type="password" id="newMgrPass" placeholder="Password" required class="px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-lime">
+                                <input type="text" id="newMgrRegion" placeholder="Manager Scope Name" required class="sm:col-span-2 px-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-lime">
+                                <button type="submit" class="bg-brand-navy hover:bg-brand-navyLight active:scale-[0.98] text-white font-bold py-3 px-4 rounded-2xl text-xs uppercase tracking-wider transition-all flex items-center justify-center space-x-2 shadow-md">
+                                    <i class="fa-solid fa-user-plus text-xs"></i>
+                                    <span>Add Manager</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="overflow-x-auto max-h-36 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-950/40">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider sticky top-0 border-b border-slate-200 dark:border-slate-800">
+                                    <tr>
+                                        <th class="p-3.5">Name</th>
+                                        <th class="p-3.5">Username</th>
+                                        <th class="p-3.5">Scope Tag</th>
+                                        <th class="p-3.5 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="managerTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-medium"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex items-center space-x-4 transition-all hover:scale-[1.01]">
+                    <div class="p-4 bg-slate-100 dark:bg-slate-800 text-brand-navy dark:text-brand-lime rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <i class="fa-solid fa-users text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">Total Candidates</div>
+                        <div id="statTotal" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">0</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex items-center space-x-4 transition-all hover:scale-[1.01]">
+                    <div class="p-4 bg-amber-500/10 text-amber-500 dark:text-amber-400 rounded-2xl border border-amber-500/20">
+                        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">In Visa / Screening</div>
+                        <div id="statPending" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">0</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex items-center space-x-4 transition-all hover:scale-[1.01]">
+                    <div class="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-500/20">
+                        <i class="fa-solid fa-circle-check text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">Upcoming Joiners</div>
+                        <div id="statHired" class="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mt-0.5">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS SUMMARY PIE CHARTS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Nationality Summary Card -->
+                <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-3 bg-brand-navy/10 dark:bg-brand-lime/10 text-brand-navy dark:text-brand-lime rounded-2xl border border-brand-navy/20 dark:border-brand-lime/20">
+                                <i class="fa-solid fa-earth-americas text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Nationalities Breakdown</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Unique Nationalities: <span id="uniqueNationalityCount" class="font-extrabold text-brand-navy dark:text-brand-lime">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative w-full h-64 flex items-center justify-center">
+                        <canvas id="nationalityPieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Source of Recruitment Summary Card -->
+                <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-3 bg-brand-navy/10 dark:bg-brand-lime/10 text-brand-navy dark:text-brand-lime rounded-2xl border border-brand-navy/20 dark:border-brand-lime/20">
+                                <i class="fa-solid fa-bullhorn text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Source of Recruitment Breakdown</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Unique Sources: <span id="uniqueSourceCount" class="font-extrabold text-brand-navy dark:text-brand-lime">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative w-full h-64 flex items-center justify-center">
+                        <canvas id="sourcePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANDIDATES TABLE -->
+            <div class="bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <div class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <i class="fa-solid fa-table-list text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-slate-900 dark:text-slate-100">Candidates Directory</h3>
+                    </div>
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                        <div class="relative w-full sm:w-64 group">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fa-solid fa-search text-xs"></i></span>
+                            <input type="text" id="searchInput" oninput="renderTable()" placeholder="Search candidates..." class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-lime shadow-inner">
+                        </div>
+                        <button onclick="exportToExcel()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold px-4 py-3 rounded-2xl text-xs uppercase tracking-wider inline-flex items-center space-x-2 shadow-sm whitespace-nowrap" title="Download Excel Sheet">
+                            <i class="fa-solid fa-file-excel text-emerald-600 dark:text-emerald-400 text-sm"></i>
+                            <span class="hidden sm:inline">Export Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-900/90 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
+                                <th class="p-4">Candidate Name</th>
+                                <th class="p-4">Brand / Division</th>
+                                <th class="p-4">Designation</th>
+                                <th class="p-4">Nationality</th>
+                                <th class="p-4">Source</th>
+                                <th class="p-4">Area Manager</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Notes / Feedback</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidateTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-medium"></tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden py-16 text-center text-slate-400">
+                    <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300 dark:text-slate-700"></i>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">No matching candidate records found.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-500">
+            Apparel Group &bull; Recruitment Tracking Portal Qatar Region &bull; Qatar Operations
+        </footer>
+    </div>
+
+    <script>
+        let appData = { managers: [], candidates: [] };
+        let currentUser = null;
+        let nationalityChartInstance = null;
+        let sourceChartInstance = null;
+
+        // Theme Switcher Function
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon text-sm';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-sm';
+                localStorage.setItem('theme', 'dark');
+            }
+            if (currentUser) {
+                updateAnalyticsSummary(getFilteredCandidates());
+            }
+        }
+
+        // Initialize default theme to Light Mode explicitly
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('themeIcon').className = 'fa-solid fa-moon text-sm';
+            localStorage.setItem('theme', 'light');
+        }
+
+        async function fetchServerData() {
+            try {
+                const res = await fetch('/api/data');
+                appData = await res.json();
+            } catch (err) {
+                console.error('Failed to load server data:', err);
+            }
+        }
+
+        async function saveServerData() {
+            try {
+                await fetch('/api/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appData)
+                });
+            } catch (err) {
+                console.error('Failed to sync data with server:', err);
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            await fetchServerData();
+
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value.trim();
+            const errDiv = document.getElementById('loginError');
+
+            if (u === 'admin' && p === 'admin123') {
+                currentUser = { role: 'admin', name: 'Super Administrator', region: 'ALL' };
+                initApp();
+                return;
+            }
+
+            const found = appData.managers.find(m => m.username === u && m.password === p);
+
+            if (found) {
+                currentUser = { role: 'manager', name: found.name, region: found.region };
+                initApp();
+            } else {
+                errDiv.textContent = 'Invalid username or password. Please try again.';
+                errDiv.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('appView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        async function initApp() {
+            await fetchServerData();
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('appView').classList.remove('hidden');
+            document.getElementById('userDisplayName').textContent = currentUser.name;
+            document.getElementById('userDisplayRole').textContent = currentUser.role === 'admin' ? 'Super Administrator' : `Area Manager — ${currentUser.region}`;
+
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminPanel').classList.remove('hidden');
+                renderManagerTable();
+            } else {
+                document.getElementById('adminPanel').classList.add('hidden');
+            }
+            renderTable();
+        }
+
+        function renderManagerTable() {
+            const tbody = document.getElementById('managerTableBody');
+            tbody.innerHTML = '';
+            appData.managers.forEach(m => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/60 transition-colors">
+                        <td class="p-3.5 font-semibold text-slate-900 dark:text-slate-100">${m.name}</td>
+                        <td class="p-3.5 font-mono text-slate-500 dark:text-slate-400">${m.username}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 bg-brand-navy/10 text-brand-navy dark:text-brand-lime border border-brand-navy/20 dark:border-brand-lime/20 rounded-xl font-semibold">${m.region}</span></td>
+                        <td class="p-3.5 text-right">
+                            <button onclick="deleteManager('${m.id}')" class="text-slate-400 hover:text-rose-500 p-1.5 transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function createManager(e) {
+            e.preventDefault();
+            const name = document.getElementById('newMgrName').value;
+            const username = document.getElementById('newMgrUser').value;
+            const password = document.getElementById('newMgrPass').value;
+            const region = document.getElementById('newMgrRegion').value;
+
+            appData.managers.push({ id: 'm_' + Date.now(), name, username, password, region });
+            await saveServerData();
+
+            document.getElementById('newMgrName').value = '';
+            document.getElementById('newMgrUser').value = '';
+            document.getElementById('newMgrPass').value = '';
+            document.getElementById('newMgrRegion').value = '';
+            renderManagerTable();
+            alert('Area Manager credential created successfully!');
+        }
+
+        async function deleteManager(id) {
+            if (confirm('Are you sure you want to remove this manager account?')) {
+                appData.managers = appData.managers.filter(m => m.id !== id);
+                await saveServerData();
+                renderManagerTable();
+            }
+        }
+
+        function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (jsonSheet.length === 0) {
+                        alert('The uploaded file appears to be empty.');
+                        return;
+                    }
+
+                    appData.candidates = jsonSheet.map((row, idx) => ({
+                        id: Date.now() + idx,
+                        name: row.Name || row['Candidate Name'] || row['Candidate'] || 'Unknown',
+                        brand: row.Brand || row.Division || 'General',
+                        designation: row.Designation || row['Position'] || 'Staff',
+                        nationality: row.Nationality || row['I'] || row['Country'] || 'Not Specified',
+                        source: row.Source || row['Source of Recruitment'] || row['Recruitment Source'] || 'Direct',
+                        region: row['Area Managers'] || row.Region || row.Area || 'Mamun',
+                        status: row['Visa/ Document Status'] || row.Status || 'New',
+                        notes: `Salary: ${row['Gross Salary'] || 'N/A'} | Notice: ${row.Notice || 'N/A'}`
+                    }));
+
+                    await saveServerData();
+                    renderTable();
+                    alert(`Successfully imported ${appData.candidates.length} candidate records to the server database!`);
+                } catch (err) {
+                    console.error(err);
+                    alert('Error parsing file. Please check your Excel structure.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function getFilteredCandidates() {
+            let candidates = [...appData.candidates];
+            
+            if (currentUser.role === 'manager') {
+                candidates = candidates.filter(c => c.region.trim().toLowerCase() === currentUser.region.trim().toLowerCase());
+            }
+
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            if (searchVal) {
+                candidates = candidates.filter(c => 
+                    c.name.toLowerCase().includes(searchVal) || 
+                    c.brand.toLowerCase().includes(searchVal) || 
+                    c.designation.toLowerCase().includes(searchVal) ||
+                    c.nationality.toLowerCase().includes(searchVal) ||
+                    c.source.toLowerCase().includes(searchVal) ||
+                    c.region.toLowerCase().includes(searchVal) ||
+                    c.status.toLowerCase().includes(searchVal)
+                );
+            }
+            return candidates;
+        }
+
+        async function renderTable() {
+            await fetchServerData();
+            const candidates = getFilteredCandidates();
+
+            document.getElementById('statTotal').textContent = candidates.length;
+            document.getElementById('statPending').textContent = candidates.filter(c => c.status.toLowerCase().includes('process') || c.status.toLowerCase().includes('pending')).length;
+            document.getElementById('statHired').textContent = candidates.filter(c => c.status.toLowerCase().includes('approved') || c.status.toLowerCase().includes('travelling') || c.status.toLowerCase().includes('ready') || c.status.toLowerCase().includes('join')).length;
+
+            updateAnalyticsSummary(candidates);
+
+            const tbody = document.getElementById('candidateTableBody');
+            tbody.innerHTML = '';
+
+            if (candidates.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+
+            candidates.forEach(c => {
+                let badgeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+                if (c.status.toLowerCase().includes('approved') || c.status.toLowerCase().includes('travelling') || c.status.toLowerCase().includes('join')) badgeColor = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
+                else if (c.status.toLowerCase().includes('process')) badgeColor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors">
+                        <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">${c.name}</td>
+                        <td class="p-4 text-slate-700 dark:text-slate-300">${c.brand}</td>
+                        <td class="p-4 text-slate-700 dark:text-slate-300">${c.designation}</td>
+                        <td class="p-4 font-medium text-slate-800 dark:text-slate-200">${c.nationality || 'N/A'}</td>
+                        <td class="p-4 text-slate-700 dark:text-slate-300">${c.source || 'N/A'}</td>
+                        <td class="p-4"><span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-semibold rounded-xl text-xs">${c.region}</span></td>
+                        <td class="p-4">
+                            <span class="text-[11px] px-3 py-1 rounded-xl font-bold ${badgeColor} inline-block">${c.status}</span>
+                        </td>
+                        <td class="p-4">
+                            <input type="text" value="${c.notes || ''}" onchange="updateNotes(${c.id}, this.value)" placeholder="Add notes..." class="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-brand-lime focus:outline-none transition-all">
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteCandidate(${c.id})" class="text-slate-400 hover:text-rose-500 p-2 transition-colors" title="Delete Candidate"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateAnalyticsSummary(candidates) {
+            const natCounts = {};
+            const sourceCounts = {};
+
+            candidates.forEach(c => {
+                const nat = (c.nationality || 'Unspecified').trim();
+                const src = (c.source || 'Direct').trim();
+                natCounts[nat] = (natCounts[nat] || 0) + 1;
+                sourceCounts[src] = (sourceCounts[src] || 0) + 1;
+            });
+
+            document.getElementById('uniqueNationalityCount').textContent = Object.keys(natCounts).length;
+            document.getElementById('uniqueSourceCount').textContent = Object.keys(sourceCounts).length;
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const legendColor = isDark ? '#94a3b8' : '#64748b';
+
+            renderPieChart('nationalityPieChart', natCounts, 'nationalityChartInstance', ['#0D1B40', '#9AC311', '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'], legendColor);
+            renderPieChart('sourcePieChart', sourceCounts, 'sourceChartInstance', ['#9AC311', '#0D1B40', '#06b6d4', '#10b981', '#f97316', '#ef4444'], legendColor);
+        }
+
+        function renderPieChart(canvasId, dataCounts, instanceName, colorPalette, legendColor) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const labels = Object.keys(dataCounts);
+            const data = Object.values(dataCounts);
+
+            if (window[instanceName]) {
+                window[instanceName].destroy();
+            }
+
+            window[instanceName] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colorPalette.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: legendColor,
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#0f172a',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            padding: 10
+                        }
+                    }
+                }
+            });
+        }
+
+        async function updateNotes(id, newNotes) {
+            let item = appData.candidates.find(c => c.id === id);
+            if (item) {
+                item.notes = newNotes;
+                await saveServerData();
+            }
+        }
+
+        async function deleteCandidate(id) {
+            if (confirm('Delete this candidate record?')) {
+                appData.candidates = appData.candidates.filter(c => c.id !== id);
+                await saveServerData();
+                renderTable();
+            }
+        }
+
+        function exportToExcel() {
+            const candidates = getFilteredCandidates();
+            if (candidates.length === 0) {
+                alert('No candidates available to export.');
+                return;
+            }
+
+            const exportData = candidates.map(c => ({
+                'Candidate Name': c.name,
+                'Brand / Division': c.brand,
+                'Designation': c.designation,
+                'Nationality': c.nationality,
+                'Source of Recruitment': c.source,
+                'Area Manager': c.region,
+                'Status': c.status,
+                'Notes / Feedback': c.notes || ''
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Recruitment Candidates");
+            
+            XLSX.writeFile(workbook, "recruitment_candidates_export.xlsx");
+        }
+    </script>
+</body>
+</html>
